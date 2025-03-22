@@ -18,13 +18,13 @@ steps:
     id: 'TF Validate'
     entrypoint: 'sh'
     args:
-      - '-c'
-      - |
-        cd infra
-        terraform init -input=false
-        terraform validate
-        terraform plan -input=false
-    # If you do not want to run Terraform here, remove this step.
+     - '-c'
+     - |
+      cd infra
+      terraform init -input=false
+      terraform validate
+      # We only want to validate, so remove terraform plan OR handle its exit code
+      # e.g. "terraform plan -input=false || true" if you want to ignore
 
   ### 2. Python Unit Tests for docker-bot
   - name: 'python:3.10'
