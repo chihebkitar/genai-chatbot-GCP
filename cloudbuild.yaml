@@ -71,7 +71,7 @@ steps:
     # If you prefer Semgrep, adapt accordingly.
 
   ### 5. Build Docker Images
-  #   We'll tag them with $SHORT_SHA, so each commit has a unique tag.
+  #    We'll tag them with $SHORT_SHA, so each commit has a unique tag.
   ### . Build Docker Images (with BuildKit enabled)
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Build docker-bot'
