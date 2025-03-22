@@ -1,9 +1,5 @@
 # syntax=docker/dockerfile:1
 
-# Comments are provided throughout this file to help you get started.
-# If you need more help, visit the Dockerfile reference guide at
-# https://docs.docker.com/go/dockerfile-reference/
-
 ARG PYTHON_VERSION=3.11
 FROM python:${PYTHON_VERSION}-slim as base
 
@@ -16,8 +12,12 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /app
 
+# Upgrade system packages (e.g. perl-base and zlib1g) to address CVE issues.
+RUN apt-get update \
+ && apt-get install -y --only-upgrade perl-base zlib1g \
+ && rm -rf /var/lib/apt/lists/*
+
 # Create a non-privileged user that the app will run under.
-# See https://docs.docker.com/go/dockerfile-user-best-practices/
 ARG UID=10001
 RUN adduser \
     --disabled-password \
@@ -49,5 +49,6 @@ COPY . .
 EXPOSE 8504
 
 HEALTHCHECK CMD curl --fail http://localhost:8504/_stcore/health
+
 # Run the application.
 CMD streamlit run docker_bot/bot.py --server.port=8504 --server.address=0.0.0.0
