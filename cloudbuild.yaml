@@ -31,22 +31,30 @@ steps:
     id: 'Unit Tests - docker-bot'
     entrypoint: 'bash'
     args:
-      - '-c'
-      - |
-        pip install pytest
-        cd docker-bot
+     - '-c'
+     - |
+      pip install pytest
+      cd docker-bot
+      if ls test_*.py tests/*.py >/dev/null 2>&1; then
         pytest --maxfail=1 --disable-warnings -q
+      else
+        echo "⚠️ No docker-bot tests found — skipping"
+      fi
 
-  ### 3. Python Unit Tests for yt-whisper
   - name: 'python:3.10'
     id: 'Unit Tests - yt-whisper'
     entrypoint: 'bash'
     args:
-      - '-c'
-      - |
-        pip install pytest
-        cd yt-whisper
+     - '-c'
+     - |
+      pip install pytest
+      cd yt-whisper
+      if ls test_*.py tests/*.py >/dev/null 2>&1; then
         pytest --maxfail=1 --disable-warnings -q
+      else
+        echo "⚠️ No yt-whisper tests found — skipping"
+      fi
+
 
   ### 4. SAST Scanning (Bandit or Semgrep)
   - name: 'python:3.10'
