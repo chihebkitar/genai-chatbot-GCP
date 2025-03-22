@@ -8,6 +8,7 @@ substitutions:
 options:
   logging: CLOUD_LOGGING_ONLY
 
+
 steps:
 
   ### (Optional) 1. Terraform Validate
