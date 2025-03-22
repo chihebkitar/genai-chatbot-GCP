@@ -72,21 +72,33 @@ steps:
 
   ### 5. Build Docker Images
   #   We'll tag them with $SHORT_SHA, so each commit has a unique tag.
+  ### . Build Docker Images (with BuildKit enabled)
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Build docker-bot'
+    env:
+      - 'DOCKER_BUILDKIT=1'
+      - 'DOCKER_CLI_EXPERIMENTAL=enabled'
     args:
       [
-        'build','-t','us-central1-docker.pkg.dev/$PROJECT_ID/genai-chatbot-repo/docker-bot:$SHORT_SHA',
-        '-f','docker-bot/Dockerfile','docker-bot'
+        'build',
+        '--tag','us-central1-docker.pkg.dev/$PROJECT_ID/genai-chatbot-repo/docker-bot:$SHORT_SHA',
+        '-f','docker-bot/Dockerfile',
+        'docker-bot'
       ]
 
   - name: 'gcr.io/cloud-builders/docker'
     id: 'Build yt-whisper'
+    env:
+      - 'DOCKER_BUILDKIT=1'
+      - 'DOCKER_CLI_EXPERIMENTAL=enabled'
     args:
       [
-        'build','-t','us-central1-docker.pkg.dev/$PROJECT_ID/genai-chatbot-repo/yt-whisper:$SHORT_SHA',
-        '-f','yt-whisper/Dockerfile','yt-whisper'
+        'build',
+        '--tag','us-central1-docker.pkg.dev/$PROJECT_ID/genai-chatbot-repo/yt-whisper:$SHORT_SHA',
+        '-f','yt-whisper/Dockerfile',
+        'yt-whisper'
       ]
+
 
   ### 6. Push Docker Images
   - name: 'gcr.io/cloud-builders/docker'
