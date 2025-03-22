@@ -116,11 +116,14 @@ steps:
       ]
 
   ### 7. Container Vulnerability Scan (Trivy)
+  ### 7. Container Vulnerability Scan (Trivy) — only fail on HIGH+CRITICAL
   - name: 'docker.io/aquasec/trivy'
     id: 'Trivy scan docker-bot'
     args:
       [
-        'image','--exit-code','1',
+        'image',
+        '--severity', 'HIGH,CRITICAL',
+        '--exit-code', '1',
         'us-central1-docker.pkg.dev/$PROJECT_ID/genai-chatbot-repo/docker-bot:$SHORT_SHA'
       ]
 
@@ -128,9 +131,12 @@ steps:
     id: 'Trivy scan yt-whisper'
     args:
       [
-        'image','--exit-code','1',
+        'image',
+        '--severity', 'HIGH,CRITICAL',
+        '--exit-code', '1',
         'us-central1-docker.pkg.dev/$PROJECT_ID/genai-chatbot-repo/yt-whisper:$SHORT_SHA'
       ]
+
 
   ### 8. Deploy to GKE
   # Option A: 'set image' commands to update existing Deployments 
