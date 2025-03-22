@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot-whisper-deployment
+  labels:
+    app: chatbot-whisper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatbot-whisper
+  template:
+    metadata:
+      labels:
+        app: chatbot-whisper
+    spec:
+      serviceAccountName: chatbot-sa
+      containers:
+        - name: chatbot-whisper
+          image: us-central1-docker.pkg.dev/genai-454421/genai-chatbot-repo/yt-whisper:latest
+          ports:
+            - containerPort: 8000
+          env:
+            - name: ENV_VAR
+              value: "example"
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatbot-whisper-service
+  labels:
+    app: chatbot-whisper
+spec:
+  selector:
+    app: chatbot-whisper
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP

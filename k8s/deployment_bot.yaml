@@ -1,0 +1,42 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: chatbot-bot-deployment
+  labels:
+    app: chatbot-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: chatbot-bot
+  template:
+    metadata:
+      labels:
+        app: chatbot-bot
+    spec:
+      # This links to the K8s SA with Workload Identity annotation
+      serviceAccountName: chatbot-sa
+
+      containers:
+      - name: chatbot-bot
+        image: us-central1-docker.pkg.dev/genai-454421/genai-chatbot-repo/docker-bot:latest
+        #   and confirm the repo/image name matches your Cloud Build push
+        ports:
+        - containerPort: 8000
+       
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chatbot-bot-service
+  labels:
+    app: chatbot-bot
+spec:
+  selector:
+    app: chatbot-bot
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8000
+  type: ClusterIP
