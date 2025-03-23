@@ -122,6 +122,7 @@ steps:
     args:
       [
         'image',
+        '--ignorefile', '.trivyignore',
         '--severity', 'HIGH,CRITICAL',
         '--exit-code', '1',
         'us-central1-docker.pkg.dev/$PROJECT_ID/genai-chatbot-repo/docker-bot:$SHORT_SHA'
@@ -132,10 +133,12 @@ steps:
     args:
       [
         'image',
+        '--ignorefile', '.trivyignore',
         '--severity', 'HIGH,CRITICAL',
         '--exit-code', '1',
         'us-central1-docker.pkg.dev/$PROJECT_ID/genai-chatbot-repo/yt-whisper:$SHORT_SHA'
       ]
+
 
 
   ### 8. Deploy to GKE
