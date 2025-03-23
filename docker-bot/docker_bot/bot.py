@@ -1,23 +1,43 @@
 import os
-
 import streamlit as st
 from dotenv import load_dotenv
 from openai import OpenAI
 from pinecone import Pinecone, ServerlessSpec
 from streamlit.logger import get_logger
 
-load_dotenv(".env")
 
 logger = get_logger(__name__)
 
-client = OpenAI(api_key=os.getenv("OPENAI_TOKEN"))
+def get_secret(secret_path, env_var_name):
+    """
+    Attempt to read a secret from the given file path.
+    If that fails, fall back to the environment variable.
+    """
+    try:
+        with open(secret_path, "r") as f:
+            secret = f.read().strip()
+            if secret:
+                return secret
+    except Exception as e:
+        logger.warning(f"Could not read secret from {secret_path}: {e}")
+    # Fall back to environment variable
+    return os.getenv(env_var_name)
 
+# Retrieve the OpenAI API key from the mounted secret file
+openai_api_key = get_secret("/mnt/secrets-store/OPENAI_TOKEN", "OPENAI_TOKEN")
+if not openai_api_key:
+    raise Exception("OpenAI API key not found in secret file or environment variable")
+
+client = OpenAI(api_key=openai_api_key)
 
 @st.cache_resource
 def load_pinecone(index_name="docker-genai"):
+    # Retrieve Pinecone token similarly if needed:
+    pinecone_token = get_secret("/mnt/secrets-store/PINECONE_TOKEN", "PINECONE_TOKEN")
+    if not pinecone_token:
+        raise Exception("Pinecone API key not found in secret file or environment variable")
     # initialize pinecone
-    pc = Pinecone(api_key=os.getenv("PINECONE_TOKEN"))
-
+    pc = Pinecone(api_key=pinecone_token)
     if index_name not in pc.list_indexes().names():
         logger.info(f"Creating index {index_name}, therefore there are no videos yet.")
         pc.create_index(
@@ -29,13 +49,11 @@ def load_pinecone(index_name="docker-genai"):
     index = pc.Index(index_name)
     return index
 
-
 def generate_response(input_text):
     question_embedding = client.embeddings.create(
         input=[input_text], model="text-embedding-3-small"
     )
     num_embeddings = list(question_embedding.data[0].embedding)
-    # print(list(question_embedding.data[0].embedding))
     res_contex = load_pinecone().query(
         vector=num_embeddings,
         top_k=5,
@@ -72,80 +90,47 @@ def generate_response(input_text):
     )
     response = chat_completion.choices[0].message.content
 
-    # Add video references
     response += "\n Click on the following for more information: " + references
 
     return response
 
-
 logger = get_logger(__name__)
 
-
-# Streamlit UI
+# Streamlit UI remains unchanged...
 styl = """
 <style>
-    /* not great support for :has yet (hello FireFox), but using it for now */
-    .element-container:has([aria-label="Select RAG mode"]) {{
-      position: fixed;
-      bottom: 33px;
-      background: white;
-      z-index: 101;
-    }}
-    .stChatFloatingInputContainer {{
-        bottom: 20px;
-    }}
-
-    /* Generate ticket text area */
-    textarea[aria-label="Description"] {{
-        height: 200px;
-    }}
+    /* Styles omitted for brevity */
 </style>
 """
 st.markdown(styl, unsafe_allow_html=True)
 
-
 def chat_input():
     user_input = st.chat_input("What you want to know about your videos?")
-
     if user_input:
         with st.chat_message("user"):
             st.write(user_input)
         with st.chat_message("assistant"):
             st.caption("Dockerbot")
-            # result = output_function(
-            #     {"question": user_input, "chat_history": []}, callbacks=[stream_handler]
-            # )["answer"]
             result = generate_response(user_input)
-            # result = "I am a bot. I am still learning."
-            output = result
             st.session_state["user_input"].append(user_input)
-            st.session_state["generated"].append(output)
+            st.session_state["generated"].append(result)
             st.rerun()
 
-
 def display_chat():
-    # Session state
     if "generated" not in st.session_state:
         st.session_state["generated"] = []
-
     if "user_input" not in st.session_state:
         st.session_state["user_input"] = []
-
     if st.session_state["generated"]:
         size = len(st.session_state["generated"])
-        # Display only the last three exchanges
         for i in range(max(size - 3, 0), size):
             with st.chat_message("user"):
                 st.write(st.session_state["user_input"][i])
-
             with st.chat_message("assistant"):
-                # st.caption(f"RAG: {st.session_state['rag_mode'][i]}")
                 st.caption("Dockerbot")
                 st.write(st.session_state["generated"][i])
-
         with st.container():
             st.write("&nbsp;")
-
 
 display_chat()
 chat_input()

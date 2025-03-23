@@ -1,4 +1,3 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -15,16 +14,36 @@ spec:
       labels:
         app: chatbot-bot
     spec:
-      # This links to the K8s SA with Workload Identity annotation
+      # Workload Identity: use the annotated service account
       serviceAccountName: chatbot-sa
-
+      initContainers:
+      - name: fetch-openai-token
+        image: google/cloud-sdk:latest
+        command:
+          - "sh"
+          - "-c"
+          - |
+            mkdir -p /mnt/secrets && \
+            echo "Fetching OPENAI_TOKEN from Secret Manager..." && \
+            gcloud secrets versions access latest --secret=OPENAI_TOKEN > /mnt/secrets/OPENAI_TOKEN && \
+            echo "Secret fetched."
+        volumeMounts:
+          - name: secret-volume
+            mountPath: /mnt/secrets
       containers:
       - name: chatbot-bot
         image: us-central1-docker.pkg.dev/genai-454421/genai-chatbot-repo/docker-bot:latest
-        #   and confirm the repo/image name matches your Cloud Build push
         ports:
         - containerPort: 8504
-       
+        # Optionally, you can set an environment variable if your app uses it.
+        # For example, you could set OPENAI_TOKEN by reading the file in your container's entrypoint script.
+        # Here we simply mount the volume so your application can read /mnt/secrets/OPENAI_TOKEN.
+        volumeMounts:
+          - name: secret-volume
+            mountPath: /mnt/secrets
+      volumes:
+      - name: secret-volume
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
