@@ -20,7 +20,7 @@ spec:
         - name: chatbot-whisper
           image: us-central1-docker.pkg.dev/genai-454421/genai-chatbot-repo/yt-whisper:latest
           ports:
-            - containerPort: 8000
+            - containerPort: 8503
           env:
             - name: ENV_VAR
               value: "example"
@@ -38,5 +38,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8000
+      targetPort: 8503
   type: ClusterIP
