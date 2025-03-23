@@ -164,9 +164,7 @@ steps:
         'chatbot-whisper=us-central1-docker.pkg.dev/$PROJECT_ID/genai-chatbot-repo/yt-whisper:$SHORT_SHA'
       ]
 
-  # Option B (Alternatively, you could do 'kubectl apply -f k8s/' if
-  # your YAML references the image via a placeholder or you manually
-  # update it. But for simplicity, we do 'set image' here.
+  
 
   ### 9. Post-Deployment Smoke Test (Optional)
   - name: 'gcr.io/cloud-builders/kubectl'
