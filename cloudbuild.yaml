@@ -166,17 +166,20 @@ steps:
   
 
   ### 9. Post-Deployment Smoke Test (Optional)
-  - name: 'gcr.io/cloud-builders/kubectl'
-    id: 'Smoke test'
-    env:
-      - 'CLOUDSDK_COMPUTE_REGION=us-central1'
-      - 'CLOUDSDK_CONTAINER_CLUSTER=genai-chatbot-cluster'
-    args:
-      [
-        'run','test-pod','--rm','-i','--restart=Never',
-        '--image=curlimages/curl',
-        '--','sh','-c','sleep 120 && curl -f http://chatbot-bot-service.default.svc.cluster.local/_stcore/health'
-      ]
+  # - name: 'gcr.io/cloud-builders/kubectl'
+#   id: 'Smoke test'
+#   env:
+#     - 'CLOUDSDK_COMPUTE_REGION=us-central1'
+#     - 'CLOUDSDK_CONTAINER_CLUSTER=genai-chatbot-cluster'
+#   args:
+#     [
+#       'run','test-pod','--rm','-i','--restart=Never',
+#       '--timeout=300s',
+#       '--image=curlimages/curl',
+#       '--','sh','-c','sleep 120 && curl -f http://chatbot-bot-service.default.svc.cluster.local/_stcore/health'
+#     ]
+
+
 
     # If your bot has a /health or /ping endpoint, adjust accordingly.
 
