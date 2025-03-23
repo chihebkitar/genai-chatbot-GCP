@@ -180,7 +180,6 @@ steps:
 #     ]
 
 
-
     # If your bot has a /health or /ping endpoint, adjust accordingly.
 
 images:
