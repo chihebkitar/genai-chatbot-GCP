@@ -139,7 +139,6 @@ steps:
       ]
 
 
-
   ### 8. Deploy to GKE
   # Option A: 'set image' commands to update existing Deployments 
   - name: 'gcr.io/cloud-builders/kubectl'
