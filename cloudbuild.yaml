@@ -174,9 +174,10 @@ steps:
     args:
       [
         'run','test-pod','--rm','-i','--restart=Never',
-        '--image=appropriate/curl','--','curl','-f',
-        'http://chatbot-bot-service.default.svc.cluster.local'
+        '--image=curlimages/curl','--','curl','-f',
+        'http://chatbot-bot-service.default.svc.cluster.local/_stcore/health'
       ]
+
     # If your bot has a /health or /ping endpoint, adjust accordingly.
 
 images:
