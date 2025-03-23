@@ -178,7 +178,6 @@ steps:
         'http://chatbot-bot-service.default.svc.cluster.local'
       ]
     # If your bot has a /health or /ping endpoint, adjust accordingly.
-    # If the command fails, the pipeline fails.
 
 images:
   - 'us-central1-docker.pkg.dev/$PROJECT_ID/genai-chatbot-repo/docker-bot:$SHORT_SHA'
